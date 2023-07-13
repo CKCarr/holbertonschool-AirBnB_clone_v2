@@ -23,10 +23,19 @@ def hbnb():
 @app.route('/c/<text>', strict_slashes=False)
 def hello_C(text):
     """
-    This function return a string when a request is made to /hbnb
+    This function return a string when a request is made to /c/<text>
     """
     text = text.replace('_', ' ')
     return 'C {}'.format(text)
+
+
+@app.route('/python', strict_slashes=False)
+@app.route('/python/<text>', strict_slashes=False)
+def hello_python(text='is cool'):
+    """ This function return a string when a request
+    is made to /python/<text> """
+    text = text.replace('_', ' ')
+    return 'Python {}'.format(text)
 
 
 if __name__ == '__main__':
