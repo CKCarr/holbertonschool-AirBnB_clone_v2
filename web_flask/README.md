@@ -1,7 +1,7 @@
 # AirBnB clone - Web framework
 
-Learning Objectives
-  General
+## Learning Objectives
+### General
 - What is a Web Framework
 - How to build a web framework with Flask
 - How to define routes in Flask
