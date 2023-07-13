@@ -42,7 +42,7 @@ def hello_python():
 def hello_number(n):
     """ This function return a string when a request
     is made to /number/<n> """
-    return '%d is a number\n' % n
+    return '%d is a number' % n
 
 
 if __name__ == '__main__':
