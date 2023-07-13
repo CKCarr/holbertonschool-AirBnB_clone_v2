@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 
 @app.route('/', strict_slashes=False)
-def hello():
+def hello_hbnb():
     """This function return a string when a request is made to root"""
     return 'Hello HBNB!'
 
