@@ -1,0 +1,33 @@
+# Compiled source code
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+__pycache__/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.ENV/
+
+# IDE-specific files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Editor backup files
+*~
+*.swp
+*.swo
+*.bak
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Dependency directories
+node_modules/
+bower_components/
