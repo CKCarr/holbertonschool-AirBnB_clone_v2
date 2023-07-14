@@ -2,8 +2,8 @@
 """ City Module for HBNB project """
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.sql import text
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session
 from models.base_model import BaseModel, Base
 from models.state import State
 from models.city import City
@@ -11,7 +11,7 @@ from models.user import User
 from models.place import Place
 from models.amenity import Amenity
 from models.review import Review
-from models import engine
+
 
 classes = {
     'City': City,
@@ -42,7 +42,6 @@ class DBStorage:
 
         if env == 'test':
             Base.metadata.drop_all(self.__engine)
-        Base.metadata.create_all(self.__engine)
 
     def all(self, cls=None):
         """ class lists all for the query in database session """

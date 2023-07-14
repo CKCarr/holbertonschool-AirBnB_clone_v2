@@ -21,6 +21,7 @@ place_amenity = Table('place_amenity', Base.metadata,
 class Place(BaseModel, Base):
     """ A place to stay """
     __tablename__ = "places"
+
     city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
     user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
     name = Column(String(128), nullable=False)
@@ -35,10 +36,8 @@ class Place(BaseModel, Base):
 
     if os.getenv('HBNB_TYPE_STORAGE') == 'db':
         reviews = relationship('Review', backref='place',
-                               cascade='all, delete, delete-orphan')
-        amenities = relationship("Amenity",
-                                 secondary="place_amenity", viewonly=False,
-                                 overlaps="place_amenities")
+                               cascade='all, delete',
+                               passive_deletes=True)
     else:
         @property
         def reviews(self):
@@ -49,13 +48,18 @@ class Place(BaseModel, Base):
                     review_list.append(review)
             return review_list
 
+    if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+        amenities = relationship("Amenity",
+                                 secondary="place_amenity", viewonly=False,
+                                 backref="place_amenities")
+    else:
         @property
         def amenities(self):
             """ method gets and sets linked amenities """
             amenity_list = []
-            all_amenities = models.storage.all(Amenity).values()
-            for amenity in all_amenities:
-                if amenity.id in self.amenity_ids:
+            all_amenities = models.storage.all(Amenity)
+            for amenity in all_amenities.values():
+                if self.id == amenity.place_id:
                     amenity_list.append(amenity)
             return amenity_list
 
