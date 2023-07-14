@@ -34,9 +34,12 @@ class DBStorage:
         host = os.getenv('HBNB_MYSQL_HOST')
         db = os.getenv('HBNB_MYSQL_DB')
         env = os.getenv('HBNB_ENV')
+        
+        if db is None:
+            raise ValueError("Database name not provided. \
+                Set the HBNB_MYSQL_DB environment variable.")
 
-        dir = "mysql+mysqldb://{}:{}@{}/{}" \
-            .format(user, pw, host, db)
+        dir = "mysql+mysqldb://{}:{}@{}/{}".format(user, pw, host, db)
 
         self.__engine = create_engine(dir, pool_pre_ping=True)
 

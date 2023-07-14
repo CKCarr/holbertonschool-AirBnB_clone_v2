@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Script that starts a Flask web application"""
+""" Script that starts a Flask web application """
 
 from flask import Flask, render_template
 from models import storage
@@ -15,14 +15,12 @@ def teardown_db(exception):
     storage.close()
 
 
-@app.route('/states_list', strict_slashes=False)
-def states_list():
-    """Display a HTML page with a list of all State
-    objects from the DBStorage."""
+@app.route('/cities_by_states', strict_slashes=False)
+def cities_by_states():
+    """Display a HTML page with a list of all Cities
+    by State."""
     states = storage.all(State).values()
-    sorted_states = sorted(states, key=lambda state: state.name)
-
-    return render_template('7-states_list.html', states=sorted_states)
+    return render_template('8-cities_by_states.html', states=states)
 
 
 if __name__ == '__main__':
