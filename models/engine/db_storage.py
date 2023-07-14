@@ -80,3 +80,8 @@ class DBStorage:
                                        expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
+
+    # Web Framework - Task 7. Improve engines
+    def close(self):
+        """ method to close session """
+        self.__session.close()
