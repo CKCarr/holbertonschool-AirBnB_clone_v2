@@ -2,8 +2,11 @@
 """ Place Module for HBNB project """
 import os
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Table
+from models.review import Review
+from models.amenity import Amenity
+import models
 
 
 place_amenity = Table('place_amenity', Base.metadata,
@@ -18,7 +21,6 @@ place_amenity = Table('place_amenity', Base.metadata,
 class Place(BaseModel, Base):
     """ A place to stay """
     __tablename__ = "places"
-
     city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
     user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
     name = Column(String(128), nullable=False)
@@ -31,50 +33,33 @@ class Place(BaseModel, Base):
     longitude = Column(Float, nullable=True)
     amenity_ids = []
 
-    user = relationship("models.user.User", backref="places")
-    city = relationship("models.city.City", backref="places")
-    amenities = relationship(
-        "models.amenity.Amenity", secondary=place_amenity, backref="places")
-
     if os.getenv('HBNB_TYPE_STORAGE') == 'db':
         reviews = relationship('Review', backref='place',
                                cascade='all, delete, delete-orphan')
+        amenities = relationship("Amenity",
+                                 secondary="place_amenity", viewonly=False)
     else:
         @property
         def reviews(self):
             """ method gets a review list for linked reviews"""
-            from models import storage
-            from models.review import Review
-
             review_list = []
-            for review in storage.all(Review).values():
+            for review in models.storage.all(Review).values():
                 if review.place_id == self.id:
                     review_list.append(review)
             return review_list
 
-    if os.getenv('HBNB_TYPE_STORAGE') == 'db':
-        amenities = relationship("Amenity",
-                                 secondary="place_amenity",
-                                 backref="place_amenities",
-                                 viewonly=False)
-    else:
         @property
         def amenities(self):
             """ method gets and sets linked amenities """
-            from models import storage
-            from models.amenity import Amenity
-
             amenity_list = []
-            all_amenities = storage.all(Amenity)
-            for amenity in all_amenities.values():
-                if self.id == amenity.place_id:
+            all_amenities = models.storage.all(Amenity).values()
+            for amenity in all_amenities:
+                if amenity.id in self.amenity_ids:
                     amenity_list.append(amenity)
             return amenity_list
 
         @amenities.setter
         def amenities(self, value):
             """ Setter attribute amenities """
-            from models.amenity import Amenity
-
             if isinstance(value, Amenity):
                 self.amenity_ids.append(value.id)
