@@ -1,78 +1,80 @@
 #!/usr/bin/python3
-"""class file DBStorage"""
-
-from os import getenv
+""" City Module for HBNB project """
+import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.sql import text
+from models.base_model import BaseModel, Base
+from models.state import State
+from models.city import City
+from models.user import User
+from models.place import Place
+from models.amenity import Amenity
+from models.review import Review
+from models import engine
+
+classes = {
+    'City': City,
+    'User': User,
+    'Review': Review,
+    'State': State,
+    'Place': Place,
+    'Amenity': Amenity
+}
 
 
-class DBStorage():
-    """the DBStorage class"""
-
+class DBStorage:
     __engine = None
     __session = None
 
     def __init__(self):
-        """ the init that give HBNB type storage"""
-        user = getenv('HBNB_MYSQL_USER')
-        pw = getenv('HBNB_MYSQL_PWD')
-        host = getenv('HBNB_MYSQL_HOST')
-        db = getenv('HBNB_MYSQL_DB')
-        env = getenv('HBNB_ENV')
+        """ the init that give HBNB envelopes?"""
+        user = os.getenv('HBNB_MYSQL_USER')
+        pw = os.getenv('HBNB_MYSQL_PWD')
+        host = os.getenv('HBNB_MYSQL_HOST')
+        db = os.getenv('HBNB_MYSQL_DB')
+        env = os.getenv('HBNB_ENV')
 
-        dir_url = "mysql+mysqldb://{}:{}@{}/{}".format(user, pw, host, db)
+        dir = "mysql+mysqldb://{}:{}@{}/{}" \
+            .format(user, pw, host, db)
 
-        self.__engine = create_engine(dir_url, pool_pre_ping=True)
+        self.__engine = create_engine(dir, pool_pre_ping=True)
 
         if env == 'test':
-            from models.base_model import Base
             Base.metadata.drop_all(self.__engine)
         Base.metadata.create_all(self.__engine)
 
     def all(self, cls=None):
-        """Retrieves all objects of a class name"""
-        from models.amenity import Amenity
-        from models.city import City
-        from models.place import Place
-        from models.review import Review
-        from models.user import User
-        from models.state import State
-
-        new_dict = {}
-        all_class = [City, State, User, Place, Review, Amenity]
-        list_objects = []
-
-        if cls is None:
-            for cls in all_class:
-                list_objects += self.__session.query(cls).all()
-        else:
-            list_objects += self.__session.query(cls).all()
-
-        for element in list_objects:
-            key = "{}.{}".format(element.__class__.__name__, element.id)
-            new_dict[key] = element
-
-        return new_dict
+        """ class lists all for the query in database session """
+        classes = {City, State, User, Place, Amenity, Review}
+        class_dict = {}
+        if cls in classes:
+            actual_class = self.__session.query(cls).all()
+            for obj in actual_class:
+                key = "{}.{}".format(obj.__class__.__name__, obj.id)
+                class_dict[key] = obj
+        elif cls is None:
+            class_dict = []
+            for cls in classes:
+                actual_class += self.__session.query(cls).all()
+            for obj in actual_class:
+                key = "{}.{}".format(obj.__class__.__name__, obj.id)
+                class_dict[key] = obj
+        return class_dict
 
     def new(self, obj):
-        """adds the object to the current database session"""
         self.__session.add(obj)
 
     def save(self):
-        """commit all changes of the current database session"""
         self.__session.commit()
 
     def delete(self, obj=None):
-        """delete from the current database session obj if not None"""
-        if obj is not None:
+        if obj:
             self.__session.delete(obj)
 
     def reload(self):
-        """create all tables in the database and the current
-           database session"""
-        from models.base_model import Base
-
+        """ method reload creates a session
+        """
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(bind=self.__engine,
                                        expire_on_commit=False)
@@ -80,5 +82,5 @@ class DBStorage():
         self.__session = Session()
 
     def close(self):
-        """remove method: remove the session"""
+        """Added for web_flask"""
         self.__session.close()
