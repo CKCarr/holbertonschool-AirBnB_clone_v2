@@ -28,6 +28,7 @@ class DBStorage():
         if env == 'test':
             from models.base_model import Base
             Base.metadata.drop_all(self.__engine)
+        Base.metadata.create_all(self.__engine)
 
     def all(self, cls=None):
         """Retrieves all objects of a class name"""
