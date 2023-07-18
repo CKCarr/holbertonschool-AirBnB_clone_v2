@@ -1,6 +1,9 @@
 #!/usr/bin/python3
-""" This modules writes a script that starts a Flask web application """
+""" This module writes a script that starts a Flask web application
 
+    Returns:
+        html: index.html
+"""
 from flask import Flask, render_template
 from models import storage
 from models.state import State
@@ -12,7 +15,7 @@ app = Flask(__name__)
 @app.teardown_appcontext
 def teardown_db(exception):
     """Remove the current SQLAlchemy Session after each request."""
-        storage.close()
+    storage.close()
 
 
 @app.route('/cities_by_states', strict_slashes=False)
