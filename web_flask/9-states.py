@@ -1,7 +1,7 @@
 #!/usr/bin/python3
+""" This modules writes a script that starts a Flask web application
 """
-Script that starts a Flask web application to list states and individual states
-"""
+
 
 from flask import Flask, render_template
 from models import storage
