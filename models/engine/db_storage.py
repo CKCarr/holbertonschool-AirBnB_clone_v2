@@ -3,7 +3,7 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.sql import text
+
 from models.base_model import BaseModel, Base
 from models.state import State
 from models.city import City
@@ -11,7 +11,7 @@ from models.user import User
 from models.place import Place
 from models.amenity import Amenity
 from models.review import Review
-from models import engine
+
 
 classes = {
     'City': City,
@@ -45,21 +45,22 @@ class DBStorage:
         Base.metadata.create_all(self.__engine)
 
     def all(self, cls=None):
-        """ class lists all for the query in database session """
-        classes = {City, State, User, Place, Amenity, Review}
+        """Returns a dictionary of all objects of a class or all classes"""
+        classes = [City, State, User, Place, Amenity, Review]
         class_dict = {}
+
         if cls in classes:
-            actual_class = self.__session.query(cls).all()
-            for obj in actual_class:
+            objects = self.__session.query(cls).all()
+            for obj in objects:
                 key = "{}.{}".format(obj.__class__.__name__, obj.id)
                 class_dict[key] = obj
         elif cls is None:
-            class_dict = []
             for cls in classes:
-                actual_class += self.__session.query(cls).all()
-            for obj in actual_class:
-                key = "{}.{}".format(obj.__class__.__name__, obj.id)
-                class_dict[key] = obj
+                objects = self.__session.query(cls).all()
+                for obj in objects:
+                    key = "{}.{}".format(obj.__class__.__name__, obj.id)
+                    class_dict[key] = obj
+
         return class_dict
 
     def new(self, obj):
