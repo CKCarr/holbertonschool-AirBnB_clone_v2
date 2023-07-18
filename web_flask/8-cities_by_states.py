@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Starts a Flask web application to render an html template """
+""" This modules writes a script that starts a Flask web application """
 
 from flask import Flask, render_template
 from models import storage
