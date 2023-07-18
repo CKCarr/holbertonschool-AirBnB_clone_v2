@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-import os
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Table
-from sqlalchemy.orm import relationship
+from sqlalchemy import Table, Column, ForeignKey, String, Integer, Float
 from models.base_model import BaseModel, Base
-
+from sqlalchemy.orm import relationship
+import os
+Integer, String, Float, ForeignKey
 
 place_amenity = Table('place_amenity', Base.metadata,
                       Column('place_id', String(60),
@@ -31,27 +31,29 @@ class Place(BaseModel, Base):
     amenity_ids = []
 
     if os.getenv('HBNB_TYPE_STORAGE') == 'db':
-        reviews = relationship('Review', back_populates='place',
-                               cascade='all, delete-orphan')
+        reviews = relationship('Review', backref='place',
+                               cascade='all, delete')
         amenities = relationship("Amenity",
-                                 secondary="place_amenity", viewonly=False)
+                                 secondary="place_amenity", viewonly=False,
+                                 overlaps="place_amenities")
     else:
         @property
         def reviews(self):
             """ method gets a review list for linked reviews"""
-            from models import storage  # noqa
-            from models.review import Review  # noqa
+            from models import storage
+            from models.review import Review
             review_list = []
             for review in storage.all(Review).values():
                 if review.place_id == self.id:
                     review_list.append(review)
             return review_list
 
+    if os.getenv('HBNB_TYPE_STORAGE') != 'db':
         @property
         def amenities(self):
             """ method gets and sets linked amenities """
-            from models import storage  # noqa
-            from models.amenity import Amenity      # noqa
+            from models import storage
+            from models.amenity import Amenity
             amenity_list = []
             all_amenities = storage.all(Amenity).values()
             for amenity in all_amenities:
@@ -62,6 +64,6 @@ class Place(BaseModel, Base):
         @amenities.setter
         def amenities(self, value):
             """ Setter attribute amenities """
-            from models.amenity import Amenity  # noqa
+            from models.amenity import Amenity
             if isinstance(value, Amenity):
                 self.amenity_ids.append(value.id)

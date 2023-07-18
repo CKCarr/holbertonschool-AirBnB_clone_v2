@@ -2,8 +2,7 @@
 """ City Module for HBNB project """
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
-
+from sqlalchemy.orm import Session, sessionmaker, scoped_session
 from models.base_model import BaseModel, Base
 from models.state import State
 from models.city import City
@@ -24,6 +23,7 @@ classes = {
 
 
 class DBStorage:
+    """ class DBStorage that will interact with the MySQL database """
     __engine = None
     __session = None
 
@@ -35,14 +35,12 @@ class DBStorage:
         db = os.getenv('HBNB_MYSQL_DB')
         env = os.getenv('HBNB_ENV')
 
-        dir = "mysql+mysqldb://{}:{}@{}/{}" \
-            .format(user, pw, host, db)
+        dir = "mysql+mysqldb://{}:{}@{}/{}".format(user, pw, host, db)
 
         self.__engine = create_engine(dir, pool_pre_ping=True)
 
         if env == 'test':
             Base.metadata.drop_all(self.__engine)
-        Base.metadata.create_all(self.__engine)
 
     def all(self, cls=None):
         """Returns a dictionary of all objects of a class or all classes"""
@@ -64,12 +62,15 @@ class DBStorage:
         return class_dict
 
     def new(self, obj):
+        """ method new adds the object to the current database session"""
         self.__session.add(obj)
 
     def save(self):
+        """ method save commits all changes of the current database session """
         self.__session.commit()
 
     def delete(self, obj=None):
+        """ method delete deletes from the current database session obj if not None """
         if obj:
             self.__session.delete(obj)
 
@@ -77,11 +78,12 @@ class DBStorage:
         """ method reload creates a session
         """
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
+        session_factory = sessionmaker(
+            bind=self.__engine,
+            expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
 
     def close(self):
-        """Added for web_flask"""
-        self.__session.close()
+        """Closes the storage"""
+        Session.close_all()
