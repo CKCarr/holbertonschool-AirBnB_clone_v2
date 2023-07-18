@@ -1,10 +1,8 @@
 #!/usr/bin/python3
-""" Module that starts a Flask web application """
-
+"""Starts a Flask web application."""
 from flask import Flask, render_template
 from models import storage
 from models.state import State
-
 
 app = Flask(__name__)
 
@@ -12,7 +10,10 @@ app = Flask(__name__)
 @app.teardown_appcontext
 def teardown_db(exception):
     """Remove the current SQLAlchemy Session after each request."""
-    storage.close()
+    try:
+        storage.close()
+    except Exception as e:
+        print("Error: {}".format(e))
 
 
 @app.route('/cities_by_states', strict_slashes=False)
